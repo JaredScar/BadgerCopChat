@@ -1,0 +1,2 @@
+# BadgerCopChat
+A FiveM script
