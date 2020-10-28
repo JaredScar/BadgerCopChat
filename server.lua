@@ -1,8 +1,8 @@
 roleList = {
-1, -- National Guardsmen
-1, -- SASP 
-1, -- LSPD 
-1, -- Fire/EMS Department
+"National", -- National Guardsmen
+"SASP", -- SASP 
+"LSPD", -- LSPD 
+"Owner", -- Fire/EMS Department
 }
 prefix = '^0[^3LEO Chat^0] ^r';
 AddEventHandler('playerDropped', function (reason) 
@@ -99,23 +99,28 @@ AddEventHandler('chatMessage', function(source, name, msg)
 		end
 	end
 end)
+
 RegisterNetEvent('BadgerCopChat:Server:GetUserData')
 AddEventHandler('BadgerCopChat:Server:GetUserData', function()
 	local src = source
-	local identifierDiscord = ExtractIdentifiers(src).discord;
-	if isCop[src] == nil then 
+	for k, v in ipairs(GetPlayerIdentifiers(src)) do
+        if string.sub(v, 1, string.len("discord:")) == "discord:" then
+            identifierDiscord = v
+        end
+    end
+	if isCop[src] == nil then
 		if identifierDiscord then
-			local roleIDs = exports.discord_perms:GetRoles(src)
+			local roleIDs = exports.Badger_Discord_API:GetDiscordRoles(src)
 			if not (roleIDs == false) then
 				for i = 1, #roleList do
 					for j = 1, #roleIDs do
-						if (tostring(roleList[i]) == tostring(roleIDs[j])) then
-							if isCop[src] == nil then 
+						if exports.Badger_Discord_API:CheckEqual(roleList[i], roleIDs[j]) then
+							if isCop[src] == nil then
 								isCop[src] = true;
 							end
 						end
 					end
-				end 
+				end
 			else
 				print("[BadgerCopChat] " .. GetPlayerName(src) .. " has not gotten their access to /leoChat cause roleIDs == false")
 			end
@@ -124,6 +129,7 @@ AddEventHandler('BadgerCopChat:Server:GetUserData', function()
 		end
 	end
 end)
+
 function has_value (tab, val)
     for index, value in ipairs(tab) do
         if value == val then
